@@ -19,7 +19,7 @@ public class Fighter : MonoBehaviour
         CalculateDrag();
     }
 
-    public void PitchUp(int PitchDirection)
+    public void Pitch(int PitchDirection)
     {
         rigid.AddTorque(pitchPower * PitchDirection * Time.deltaTime, ForceMode2D.Force);
     }

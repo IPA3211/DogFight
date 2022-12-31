@@ -7,10 +7,10 @@ public class FighterController : MonoBehaviour
     [SerializeField] Fighter fighter;
     int rollingStatus;
     bool isFiring;
-    void Update()
+    void FixedUpdate()
     {
         
-        fighter.PitchUp(rollingStatus);
+        fighter.Pitch(rollingStatus);
 
         switch (isFiring)
         {
