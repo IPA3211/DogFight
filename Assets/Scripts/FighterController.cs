@@ -10,7 +10,7 @@ public class FighterController : MonoBehaviour
     void Update()
     {
         
-        fighter.rollingUp(rollingStatus);
+        fighter.PitchUp(rollingStatus);
 
         switch (isFiring)
         {
@@ -22,7 +22,7 @@ public class FighterController : MonoBehaviour
         }
     }
 
-    public void SetRollingStatus(int index = 0)
+    public void SetPitchStatus(int index = 0)
     {
         rollingStatus = index;
     }

@@ -12,15 +12,15 @@ public class InputManager : MonoBehaviour
         {
             if (Input.GetAxisRaw("Vertical") > 0)
             {
-                controller.SetRollingStatus(1);
+                controller.SetPitchStatus(1);
             }
             else if (Input.GetAxisRaw("Vertical") < 0)
             {
-                controller.SetRollingStatus(-1);
+                controller.SetPitchStatus(-1);
             }
             else
             {
-                controller.SetRollingStatus(0);
+                controller.SetPitchStatus(0);
             }
         }
 

@@ -4,21 +4,39 @@ using UnityEngine;
 
 public class Fighter : MonoBehaviour
 {
-    public float rollingPower = 10f;
-    public float speed = 10f;
+    public float pitchPower = 10f;
+    public float speed = 100f;
     Rigidbody2D rigid;
     public void Start()
     {
         rigid = GetComponent<Rigidbody2D>();
     }
 
-    public void Update()
+    public void FixedUpdate()
     {
-        rigid.AddRelativeForce(speed * Vector2.right * Time.deltaTime);
+        CalculateThrust();
+        CalculateLift();
+        CalculateDrag();
     }
 
-    public void rollingUp(int rollingDirection)
+    public void PitchUp(int PitchDirection)
     {
-        rigid.AddTorque(rollingPower * rollingDirection * Time.deltaTime, ForceMode2D.Force);
+        rigid.AddTorque(pitchPower * PitchDirection * Time.deltaTime, ForceMode2D.Force);
+    }
+
+    public void CalculateThrust()
+    {
+        rigid.AddRelativeForce(speed * Vector2.right * Time.deltaTime, ForceMode2D.Force);
+    }
+
+    public void CalculateLift()
+    {
+        rigid.AddRelativeForce(0.4f * Mathf.Pow(rigid.velocity.magnitude, 2) * Vector2.up * Time.deltaTime, ForceMode2D.Force);
+    }
+
+    public void CalculateDrag()
+    {
+        var volume = 3 * Mathf.Sin(Mathf.Deg2Rad * Vector2.Angle(rigid.velocity, transform.right)) + 0.8f * Mathf.Cos(Mathf.Deg2Rad * Vector2.Angle(rigid.velocity, transform.right));
+        rigid.AddForce(0.1f * volume * Mathf.Pow(rigid.velocity.magnitude, 2) / 2 * (-rigid.velocity.normalized), ForceMode2D.Force);
     }
 }
