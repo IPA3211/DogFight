@@ -33,5 +33,9 @@ public class InputManager : MonoBehaviour
             controller.SetFiringStatus(false);
         }
 
+
+        if(Input.GetKeyDown("r")){
+            controller.SetFlipStatus();
+        }
     }
 }

@@ -10,6 +10,6 @@ public class Bullet : MonoBehaviour
     {
         rigid = GetComponent<Rigidbody2D>();
         rigid.AddForce(transform.right * speed, ForceMode2D.Impulse);
-        Destroy(gameObject, 3f);
+        Destroy(gameObject, 1f);
     }
 }

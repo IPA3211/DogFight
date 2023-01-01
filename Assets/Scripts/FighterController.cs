@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class FighterController : MonoBehaviour
 {
+    [SerializeField] bool isPitchReversed;
     [SerializeField] Fighter fighter;
     int rollingStatus;
     bool isFiring;
@@ -28,11 +29,16 @@ public class FighterController : MonoBehaviour
 
     public void SetPitchStatus(int index = 0)
     {
-        rollingStatus = index;
+        rollingStatus = isPitchReversed ? -index : index;
     }
 
     public void SetFiringStatus(bool isFiring = false)
     {
         this.isFiring = isFiring;
+    }
+
+    public void SetFlipStatus()
+    {
+        fighter.RollFighter(!fighter.IsYfliped);
     }
 }
