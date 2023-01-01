@@ -9,16 +9,20 @@ public class FighterController : MonoBehaviour
     bool isFiring;
     void FixedUpdate()
     {
-        
+        controlFighter();
+    }
+
+    void controlFighter()
+    {
         fighter.Pitch(rollingStatus);
 
-        switch (isFiring)
+        if (isFiring)
         {
-            case true:
-                Debug.Log("Fire");
-                break;
-            case false:
-                break;
+            var isFired = fighter.FireBullet();
+            if (isFired)
+            {
+
+            }
         }
     }
 

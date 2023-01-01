@@ -24,5 +24,14 @@ public class InputManager : MonoBehaviour
             }
         }
 
+        if (Input.GetButtonDown("Fire1"))
+        {
+            controller.SetFiringStatus(true);
+        }
+        else if (Input.GetButtonUp("Fire1"))
+        {
+            controller.SetFiringStatus(false);
+        }
+
     }
 }
