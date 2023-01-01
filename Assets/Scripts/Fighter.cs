@@ -19,18 +19,35 @@ public class Fighter : MonoBehaviour
     public float fireingInterval = 1;
     float intervalTime = 0;
     Rigidbody2D rigid;
+    Vector3 drag;
+    Vector3 lift;
+    Vector3 thrust;
     public void Start()
     {
         rigid = GetComponent<Rigidbody2D>();
         Flip();
     }
 
+    void OnDrawGizmos(){
+        
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, transform.position + drag);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawLine(transform.position, transform.position + lift);
+        Gizmos.color = Color.green;
+        Gizmos.DrawLine(transform.position, transform.position + thrust);
+        Gizmos.color = Color.white;
+        Gizmos.DrawLine(transform.position, transform.position + thrust + drag + lift + new Vector3(0, -9.81f, 0) / 2);
+        Debug.Log(lift);
+        Debug.Log(lift + new Vector3(0, -9.81f, 0) / 2);
+    }
+
     public void FixedUpdate()
     {
+        drag = CalculateDrag() / 2;
+        lift = CalculateLift() / 2;
+        thrust = CalculateThrust() / 2;
         intervalTime -= Time.fixedDeltaTime;
-        CalculateThrust();
-        CalculateLift();
-        CalculateDrag();
     }
 
     public void Flip()
@@ -66,19 +83,25 @@ public class Fighter : MonoBehaviour
         return true;
     }
 
-    public void CalculateThrust()
+    public Vector2 CalculateThrust()
     {
-        rigid.AddForce(speed * front * Time.fixedDeltaTime, ForceMode2D.Force);
+        var f = speed * front * Time.fixedDeltaTime;
+        rigid.AddForce(f, ForceMode2D.Force);
+        return f;
     }
 
-    public void CalculateLift()
+    public Vector2 CalculateLift()
     {
-        rigid.AddForce(Mathf.Pow(rigid.velocity.magnitude, 2) * up * Time.fixedDeltaTime, ForceMode2D.Force);
+        var f = Mathf.Pow(rigid.velocity.magnitude, 2) * up * Time.fixedDeltaTime;
+        rigid.AddForce(f, ForceMode2D.Force);
+        return f;
     }
 
-    public void CalculateDrag()
+    public Vector2 CalculateDrag()
     {
         var volume = 3 * Mathf.Sin(Mathf.Deg2Rad * Vector2.Angle(rigid.velocity.normalized, front)) + 0.8f * Mathf.Cos(Mathf.Deg2Rad * Vector2.Angle(rigid.velocity.normalized, front));
-        rigid.AddForce(0.1f * volume * Mathf.Pow(rigid.velocity.magnitude, 2) / 2 * (-rigid.velocity.normalized), ForceMode2D.Force);
+        var f = 0.1f * volume * Mathf.Pow(rigid.velocity.magnitude, 2) / 2 * (-rigid.velocity.normalized);
+        rigid.AddForce(f, ForceMode2D.Force);
+        return f;
     }
 }
