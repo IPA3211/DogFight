@@ -46,7 +46,7 @@ public class Fighter : MonoBehaviour
 
     public void CalculateLift()
     {
-        rigid.AddRelativeForce(0.4f * Mathf.Pow(rigid.velocity.magnitude, 2) * Vector2.up * Time.fixedDeltaTime, ForceMode2D.Force);
+        rigid.AddRelativeForce(Mathf.Pow(rigid.velocity.magnitude, 2) * Vector2.up * Time.fixedDeltaTime, ForceMode2D.Force);
     }
 
     public void CalculateDrag()
