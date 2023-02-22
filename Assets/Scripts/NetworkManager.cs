@@ -9,36 +9,37 @@ public class NetworkManager : MonoBehaviour
 {
     TcpClient tcpClient;
     IPAddress iPAddress;
+    NetworkStream stream;
 
     // Start is called before the first frame update
-    void Start()
+    async void Start()
     {
-        TcpClient tc = new TcpClient("192.168.56.101", 7000);
+        tcpClient = new TcpClient();
+        await tcpClient.ConnectAsync("192.168.56.101", 7000);
+
         string msg = "Hello Server";
         byte[] buff = Encoding.ASCII.GetBytes(msg);
-
         // (2) NetworkStream을 얻어옴 
-        NetworkStream stream = tc.GetStream();
+        stream = tcpClient.GetStream();
 
         // (3) 스트림에 바이트 데이타 전송
-        stream.Write(buff, 0, buff.Length);
+        await stream.WriteAsync(buff, 0, buff.Length);
 
         // (4) 서버가 Connection을 닫을 때가지 읽는 경우
         byte[] outbuf = new byte[1024];
         int nbytes;
         MemoryStream mem = new MemoryStream();
-        while ((nbytes = stream.Read(outbuf, 0, outbuf.Length)) > 0)
+        while ((nbytes = await stream.ReadAsync(outbuf, 0, outbuf.Length)) > 0)
         {
-            mem.Write(outbuf, 0, nbytes);
+            Debug.Log(Encoding.ASCII.GetString(outbuf));
+            Array.Clear(outbuf, 0, outbuf.Length);
         }
-        byte[] outbytes = mem.ToArray();
+        
         mem.Close();
 
         // (5) 스트림과 TcpClient 객체 닫기
         stream.Close();
-        tc.Close();
-
-        Debug.Log(Encoding.ASCII.GetString(outbytes));
+        tcpClient.Close();
     }
 
     // Update is called once per frame
