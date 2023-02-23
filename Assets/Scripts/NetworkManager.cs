@@ -15,31 +15,38 @@ public class NetworkManager : MonoBehaviour
     async void Start()
     {
         tcpClient = new TcpClient();
-        await tcpClient.ConnectAsync("192.168.56.101", 7000);
-
-        string msg = "Hello Server";
-        byte[] buff = Encoding.ASCII.GetBytes(msg);
-        // (2) NetworkStream을 얻어옴 
-        stream = tcpClient.GetStream();
-
-        // (3) 스트림에 바이트 데이타 전송
-        await stream.WriteAsync(buff, 0, buff.Length);
-
-        // (4) 서버가 Connection을 닫을 때가지 읽는 경우
-        byte[] outbuf = new byte[1024];
-        int nbytes;
-        MemoryStream mem = new MemoryStream();
-        while ((nbytes = await stream.ReadAsync(outbuf, 0, outbuf.Length)) > 0)
+        try
         {
-            Debug.Log(Encoding.ASCII.GetString(outbuf));
-            Array.Clear(outbuf, 0, outbuf.Length);
-        }
-        
-        mem.Close();
+            await tcpClient.ConnectAsync("192.168.56.101", 7000);
+            Debug.Log("연결 성공");
+            string msg = "Hello Server";
+            byte[] buff = Encoding.ASCII.GetBytes(msg);
+            stream = tcpClient.GetStream();
 
-        // (5) 스트림과 TcpClient 객체 닫기
-        stream.Close();
-        tcpClient.Close();
+            await stream.WriteAsync(buff, 0, buff.Length);
+
+            byte[] outbuf = new byte[1024];
+            int nbytes;
+            MemoryStream mem = new MemoryStream();
+            while ((nbytes = await stream.ReadAsync(outbuf, 0, outbuf.Length)) > 0)
+            {
+                Debug.Log(nbytes);
+                Debug.Log(Encoding.UTF8.GetString(outbuf));
+                Array.Clear(outbuf, 0, outbuf.Length);
+            }
+            
+            Debug.Log("연결 종료");
+
+            mem.Close();
+
+            // (5) 스트림과 TcpClient 객체 닫기
+            stream.Close();
+            tcpClient.Close();
+        }
+        catch (SocketException)
+        {
+            Debug.Log("서버와 연결 할 수 없습니다.");
+        }
     }
 
     // Update is called once per frame
