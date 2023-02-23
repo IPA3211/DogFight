@@ -1207,7 +1207,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &304538060
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3645,7 +3645,7 @@ GameObject:
   - component: {fileID: 821749141}
   - component: {fileID: 821749140}
   m_Layer: 5
-  m_Name: SUIDInputField
+  m_Name: SUIdInputField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3733,7 +3733,19 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1137644881}
+        m_TargetAssemblyTypeName: SignUpUIManager, Assembly-CSharp
+        m_MethodName: CheckIdDuplication
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -4037,7 +4049,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &905029408
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5155,9 +5167,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1137644879}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8c73c3e76e710c746ab838a2ef978a13, type: 3}
+  m_Script: {fileID: 11500000, guid: 6b10111852b0fc94987a8ab8cf47d710, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  idInput: {fileID: 821749140}
+  pwInput: {fileID: 1166822497}
+  pwConfirmInput: {fileID: 1345655925}
+  emailInput: {fileID: 89546559}
+  nickInput: {fileID: 216882186}
+  idCheck: {fileID: 905029409}
+  pwCheck: {fileID: 1641345567}
+  emailCheck: {fileID: 304538061}
+  nickCheck: {fileID: 1675995889}
 --- !u!1 &1149989738
 GameObject:
   m_ObjectHideFlags: 0
@@ -5306,7 +5327,7 @@ GameObject:
   - component: {fileID: 1166822498}
   - component: {fileID: 1166822497}
   m_Layer: 5
-  m_Name: SUPWInputField
+  m_Name: SUPwInputField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5394,7 +5415,19 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1137644881}
+        m_TargetAssemblyTypeName: SignUpUIManager, Assembly-CSharp
+        m_MethodName: CheckPasswordConfime
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -5682,7 +5715,7 @@ GameObject:
   - component: {fileID: 1345655926}
   - component: {fileID: 1345655925}
   m_Layer: 5
-  m_Name: SUPWConfirmInputField
+  m_Name: SUPwConfirmInputField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5770,7 +5803,19 @@ MonoBehaviour:
   m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1137644881}
+        m_TargetAssemblyTypeName: SignUpUIManager, Assembly-CSharp
+        m_MethodName: CheckPasswordConfime
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   m_OnSubmit:
     m_PersistentCalls:
       m_Calls: []
@@ -6753,7 +6798,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1641345566
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6969,7 +7014,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1675995888
 RectTransform:
   m_ObjectHideFlags: 0
