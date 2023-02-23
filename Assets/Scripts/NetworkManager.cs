@@ -67,16 +67,41 @@ public class NetworkManager : MonoBehaviour
     // Start is called before the first frame update
     async void Start()
     {
-        tcpClient = new TcpClient();
+        await StartConnection();
+    }
+
+    public void FixedUpdate()
+    {
+        foreach (var item in requestDict.Values)
+        {
+            if (item.UpdateDuration(Time.fixedDeltaTime))
+            {
+                requestDict.Remove(item.Packet.Index);
+            }
+        }
+    }
+
+    public async Task StartConnection()
+    {
+        if (tcpClient != null && tcpClient.Connected)
+        {
+            stream.Close();
+            tcpClient.Close();
+
+            tcpClient = null;
+            stream = null;
+        }
+
+
         try
         {
+            tcpClient = new TcpClient();
             await tcpClient.ConnectAsync("192.168.56.101", 7000);
+
             Debug.Log("연결 성공");
-            string msg = "Hello Server";
-            byte[] buff = Encoding.ASCII.GetBytes(msg);
+            
             stream = tcpClient.GetStream();
 
-            await stream.WriteAsync(buff, 0, buff.Length);
 
             await RecvPacket();
 
@@ -90,17 +115,6 @@ public class NetworkManager : MonoBehaviour
         catch (SocketException)
         {
             Debug.Log("서버와 연결 할 수 없습니다.");
-        }
-    }
-
-    public void FixedUpdate()
-    {
-        foreach (var item in requestDict.Values)
-        {
-            if (item.UpdateDuration(Time.fixedDeltaTime))
-            {
-                requestDict.Remove(item.Packet.Index);
-            }
         }
     }
 
@@ -144,8 +158,17 @@ public class NetworkManager : MonoBehaviour
             {
                 var str = Encoding.UTF8.GetString(ans.ToArray());
                 var packet = JsonUtility.FromJson<TcpPacket>(Encoding.UTF8.GetString(ans.ToArray()));
-            }
 
+                switch ((TcpPacketType)packet.Order)
+                {
+                    case TcpPacketType.answer : 
+                        requestDict[packet.Index].OnAnswerArrive(packet);
+                    break;
+                    case TcpPacketType.msg : 
+                        Debug.Log(packet.Msg);
+                    break;
+                }
+            }
 
             Array.Clear(outbuf, 0, outbuf.Length);
         }

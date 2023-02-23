@@ -9,6 +9,8 @@ public class TcpPacket
     [SerializeField] string msg;
 
     public int Index => index;
+    public int Order => order;
+    public string Msg => msg;
 
     public TcpPacket(int orderNum, string message)
     {
