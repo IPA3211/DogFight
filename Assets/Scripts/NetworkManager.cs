@@ -159,6 +159,7 @@ public class NetworkManager : MonoBehaviour
                 var str = Encoding.UTF8.GetString(ans.ToArray());
                 var packet = JsonUtility.FromJson<TcpPacket>(Encoding.UTF8.GetString(ans.ToArray()));
 
+                Debug.Log(str);
                 switch ((TcpPacketType)packet.Order)
                 {
                     case TcpPacketType.Answer:
@@ -174,6 +175,7 @@ public class NetworkManager : MonoBehaviour
             }
 
             Array.Clear(outbuf, 0, outbuf.Length);
+            ans.Clear();
         }
 
         mem.Close();
