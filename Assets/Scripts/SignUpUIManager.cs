@@ -53,7 +53,7 @@ public class SignUpUIManager : MonoBehaviour
         NetworkManager.Instance.SendPacket(packet, 1000,
         (p) =>
         {
-            if (Convert.ToBoolean(p.Msg))
+            if (Convert.ToInt16(p.Msg) == 1)
             {
                 idCheck.enabled = true;
                 idCheck.sprite = checkSprite;
@@ -76,7 +76,7 @@ public class SignUpUIManager : MonoBehaviour
         NetworkManager.Instance.SendPacket(packet, 1000,
         (p) =>
         {
-            if (Convert.ToBoolean(p.Msg))
+            if (Convert.ToInt16(p.Msg) == 1)
             {
                 nickCheck.enabled = true;
                 nickCheck.sprite = checkSprite;
@@ -95,7 +95,12 @@ public class SignUpUIManager : MonoBehaviour
 
     public void CheckPasswordConfirm(string confimePass)
     {
+        if (pwInput.text == "")
+        {
+            return;
+        }
         pwCheck.enabled = true;
+
         if (pwInput.text == pwConfirmInput.text)
         {
             pwCheck.sprite = checkSprite;
@@ -104,7 +109,6 @@ public class SignUpUIManager : MonoBehaviour
         {
             pwCheck.sprite = warnSprite;
         }
-        Debug.Log("on end");
     }
 
     public void IsValidEmail(string email)
@@ -113,11 +117,11 @@ public class SignUpUIManager : MonoBehaviour
 
         if (valid)
         {
-            var packet = new TcpPacket(TcpPacketType.NickDuplication, email);
+            var packet = new TcpPacket(TcpPacketType.EmailDuplication, email);
             NetworkManager.Instance.SendPacket(packet, 1000,
             (p) =>
             {
-                if (Convert.ToBoolean(p.Msg))
+                if (Convert.ToInt16(p.Msg) == 1)
                 {
                     emailCheck.enabled = true;
                     emailCheck.sprite = checkSprite;
