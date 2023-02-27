@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 public class SignUpUIManager : MonoBehaviour
 {
@@ -20,7 +21,7 @@ public class SignUpUIManager : MonoBehaviour
     [SerializeField] Image nickCheck;
     [Header("Sprite")]
     [SerializeField] Sprite checkSprite;
-    [SerializeField] Sprite wranSprite;
+    [SerializeField] Sprite warnSprite;
 
     public void OnEnable()
     {
@@ -39,17 +40,60 @@ public class SignUpUIManager : MonoBehaviour
         pwCheck.enabled = false;
         emailCheck.enabled = false;
         nickCheck.enabled = false;
+
+        idCheck.sprite = warnSprite;
+        pwCheck.sprite = warnSprite;
+        emailCheck.sprite = warnSprite;
+        nickCheck.sprite = warnSprite;
     }
 
     public void CheckIdDuplication(string id)
     {
+        var packet = new TcpPacket(TcpPacketType.IdDuplication, id);
+        NetworkManager.Instance.SendPacket(packet, 1000,
+        (p) =>
+        {
+            if (Convert.ToBoolean(p.Msg))
+            {
+                idCheck.enabled = true;
+                idCheck.sprite = checkSprite;
+            }
+            else
+            {
+                idCheck.enabled = true;
+                idCheck.sprite = warnSprite;
+            }
+        },
+        () =>
+        {
+            Debug.Log("ID TimeOut");
+        });
     }
 
     public void NickNameDuplication(string nickName)
     {
+        var packet = new TcpPacket(TcpPacketType.NickDuplication, nickName);
+        NetworkManager.Instance.SendPacket(packet, 1000,
+        (p) =>
+        {
+            if (Convert.ToBoolean(p.Msg))
+            {
+                nickCheck.enabled = true;
+                nickCheck.sprite = checkSprite;
+            }
+            else
+            {
+                nickCheck.enabled = true;
+                nickCheck.sprite = warnSprite;
+            }
+        },
+        () =>
+        {
+            Debug.Log("nick TimeOut");
+        });
     }
 
-    public void CheckPasswordConfime(string confimePass)
+    public void CheckPasswordConfirm(string confimePass)
     {
         pwCheck.enabled = true;
         if (pwInput.text == pwConfirmInput.text)
@@ -58,8 +102,9 @@ public class SignUpUIManager : MonoBehaviour
         }
         else
         {
-            pwCheck.sprite = wranSprite;
+            pwCheck.sprite = warnSprite;
         }
+        Debug.Log("on end");
     }
 
     public void IsValidEmail(string email)
@@ -68,7 +113,31 @@ public class SignUpUIManager : MonoBehaviour
 
         if (valid)
         {
-            
+            var packet = new TcpPacket(TcpPacketType.NickDuplication, email);
+            NetworkManager.Instance.SendPacket(packet, 1000,
+            (p) =>
+            {
+                if (Convert.ToBoolean(p.Msg))
+                {
+                    emailCheck.enabled = true;
+                    emailCheck.sprite = checkSprite;
+                }
+                else
+                {
+                    emailCheck.enabled = true;
+                    emailCheck.sprite = warnSprite;
+                }
+            },
+
+            () =>
+            {
+                Debug.Log("email TimeOut");
+            });
         }
+    }
+
+    public void OnConfirmClick()
+    {
+
     }
 }

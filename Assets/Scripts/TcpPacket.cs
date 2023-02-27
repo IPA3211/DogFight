@@ -12,10 +12,10 @@ public class TcpPacket
     public int Order => order;
     public string Msg => msg;
 
-    public TcpPacket(int orderNum, string message)
+    public TcpPacket(TcpPacketType orderNum, string message)
     {
         index = this.GetHashCode();
-        order = orderNum;
+        order = (int)orderNum;
         msg = message;
     }
 }

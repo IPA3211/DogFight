@@ -1,6 +1,10 @@
 public enum TcpPacketType
 {
-    answer = 1,
-    msg,
-    
+    Answer = 1,
+    Msg,
+    IdDuplication,
+    NickDuplication,
+    EmailDuplication,
+    Quit = 999,
 }
+

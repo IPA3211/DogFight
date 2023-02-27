@@ -99,7 +99,7 @@ public class NetworkManager : MonoBehaviour
             await tcpClient.ConnectAsync("192.168.56.101", 7000);
 
             Debug.Log("연결 성공");
-            
+
             stream = tcpClient.GetStream();
 
 
@@ -161,12 +161,15 @@ public class NetworkManager : MonoBehaviour
 
                 switch ((TcpPacketType)packet.Order)
                 {
-                    case TcpPacketType.answer : 
-                        requestDict[packet.Index].OnAnswerArrive(packet);
-                    break;
-                    case TcpPacketType.msg : 
+                    case TcpPacketType.Answer:
+                        if (requestDict.ContainsKey(packet.Index))
+                        {
+                            requestDict[packet.Index].OnAnswerArrive(packet);
+                        }
+                        break;
+                    case TcpPacketType.Msg:
                         Debug.Log(packet.Msg);
-                    break;
+                        break;
                 }
             }
 
