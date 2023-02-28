@@ -206,7 +206,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 33098599}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1137644881}
+        m_TargetAssemblyTypeName: SignUpUIManager, Assembly-CSharp
+        m_MethodName: OnConfirmClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &33098599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -521,7 +533,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1137644881}
         m_TargetAssemblyTypeName: SignUpUIManager, Assembly-CSharp
-        m_MethodName: IsValidEmail
+        m_MethodName: CheckEmailAsync
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -844,7 +856,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1137644881}
         m_TargetAssemblyTypeName: SignUpUIManager, Assembly-CSharp
-        m_MethodName: NickNameDuplication
+        m_MethodName: CheckNickNameAsync
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3760,7 +3772,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1137644881}
         m_TargetAssemblyTypeName: SignUpUIManager, Assembly-CSharp
-        m_MethodName: CheckIdDuplication
+        m_MethodName: CheckIdAsync
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5444,7 +5456,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1137644881}
         m_TargetAssemblyTypeName: SignUpUIManager, Assembly-CSharp
-        m_MethodName: CheckPasswordConfirm
+        m_MethodName: CheckPassword
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -5832,7 +5844,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1137644881}
         m_TargetAssemblyTypeName: SignUpUIManager, Assembly-CSharp
-        m_MethodName: CheckPasswordConfirm
+        m_MethodName: CheckPassword
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

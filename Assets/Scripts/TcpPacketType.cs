@@ -2,9 +2,9 @@ public enum TcpPacketType
 {
     Answer = 0,
     Msg,
-    IdDuplication = 100,
-    NickDuplication,
-    EmailDuplication,
+    DuplicationCheck = 100,
+    SignUp = 200,
+    SignIn,
     Quit = 999,
 }
 

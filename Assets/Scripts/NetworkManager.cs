@@ -10,20 +10,19 @@ using System.Linq;
 
 public delegate void AnswerCallback(TcpPacket packet);
 public delegate void TimeoutCallBack();
+
 public class NetworkRequest
 {
     TcpPacket packet;
-    AnswerCallback answerCallback;
-    TimeoutCallBack timeoutCallBack;
+    TaskCompletionSource<TcpPacket> tsc;
     float duration;
 
     public TcpPacket Packet => packet;
 
-    public NetworkRequest(TcpPacket pack, AnswerCallback ans, TimeoutCallBack time, float dur)
+    public NetworkRequest(TcpPacket pack, TaskCompletionSource<TcpPacket> inTsc, float dur)
     {
         packet = pack;
-        answerCallback = ans;
-        timeoutCallBack = time;
+        tsc = inTsc;
         duration = dur;
     }
 
@@ -40,12 +39,13 @@ public class NetworkRequest
 
     public void OnAnswerArrive(TcpPacket packet)
     {
-        answerCallback.Invoke(packet);
+        tsc.SetResult(packet);
     }
 
     public void OnRemove()
     {
-        timeoutCallBack?.Invoke();
+        TimeoutException e = new TimeoutException();
+        tsc.SetException(e);
     }
 }
 public class NetworkManager : MonoBehaviour
@@ -118,7 +118,7 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public void SendPacket(TcpPacket packet, float duration = 0, AnswerCallback callback = null, TimeoutCallBack timeOutCallBack = null)
+    public void SendPacket(TcpPacket packet, TaskCompletionSource<TcpPacket> tsc, float duration = 0)
     {
         if (IsConnected)
         {
@@ -126,7 +126,7 @@ public class NetworkManager : MonoBehaviour
             byte[] buff = Encoding.UTF8.GetBytes(json);
             if (duration > 0)
             {
-                NetworkRequest request = new NetworkRequest(packet, callback, timeOutCallBack, duration);
+                NetworkRequest request = new NetworkRequest(packet, tsc, duration);
                 requestDict.Add(packet.Index, request);
             }
             stream?.WriteAsync(buff, 0, buff.Length);

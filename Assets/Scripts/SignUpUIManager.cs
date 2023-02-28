@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
+using System.Net.Json;
+using System.Threading.Tasks;
 
 public class SignUpUIManager : MonoBehaviour
 {
@@ -47,13 +49,28 @@ public class SignUpUIManager : MonoBehaviour
         nickCheck.sprite = warnSprite;
     }
 
-    public void CheckIdDuplication(string id)
+    void SendDuplicationCheckPacket(string table, string column, string check, TaskCompletionSource<TcpPacket> tcs)
     {
-        var packet = new TcpPacket(TcpPacketType.IdDuplication, id);
-        NetworkManager.Instance.SendPacket(packet, 1000,
-        (p) =>
+        JsonObjectCollection jsonObj = new JsonObjectCollection();
+        jsonObj.Add(new JsonStringValue("table", table));
+        jsonObj.Add(new JsonStringValue("column", column));
+        jsonObj.Add(new JsonStringValue("check", check));
+
+        var packet = new TcpPacket(TcpPacketType.DuplicationCheck, jsonObj.ToString());
+        NetworkManager.Instance.SendPacket(packet, tcs, 1000);
+    }
+
+    public async void CheckIdAsync(string id)
+    {
+        TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
+        SendDuplicationCheckPacket("user", "UserId", id, tcs);
+        try
         {
-            if (Convert.ToInt16(p.Msg) == 1)
+            var ans = await tcs.Task;
+            JsonTextParser parser = new JsonTextParser();
+            Debug.Log(ans.Msg);
+            var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
+            if (Convert.ToInt16(msgJson["result"].GetValue()) == 1)
             {
                 idCheck.enabled = true;
                 idCheck.sprite = checkSprite;
@@ -63,20 +80,23 @@ public class SignUpUIManager : MonoBehaviour
                 idCheck.enabled = true;
                 idCheck.sprite = warnSprite;
             }
-        },
-        () =>
+        }
+        catch (TcpTimeOutException)
         {
-            Debug.Log("ID TimeOut");
-        });
+            Debug.Log("id TimeOut");
+        }
     }
 
-    public void NickNameDuplication(string nickName)
+    public async void CheckNickNameAsync(string nickName)
     {
-        var packet = new TcpPacket(TcpPacketType.NickDuplication, nickName);
-        NetworkManager.Instance.SendPacket(packet, 1000,
-        (p) =>
+        TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
+        SendDuplicationCheckPacket("user", "NickName", nickName, tcs);
+        try
         {
-            if (Convert.ToInt16(p.Msg) == 1)
+            var ans = await tcs.Task;
+            JsonTextParser parser = new JsonTextParser();
+            var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
+            if (Convert.ToInt16(msgJson["result"].GetValue()) == 1)
             {
                 nickCheck.enabled = true;
                 nickCheck.sprite = checkSprite;
@@ -86,14 +106,14 @@ public class SignUpUIManager : MonoBehaviour
                 nickCheck.enabled = true;
                 nickCheck.sprite = warnSprite;
             }
-        },
-        () =>
+        }
+        catch (TcpTimeOutException)
         {
             Debug.Log("nick TimeOut");
-        });
+        }
     }
 
-    public void CheckPasswordConfirm(string confimePass)
+    public void CheckPassword(string confimePass)
     {
         if (pwInput.text == "")
         {
@@ -111,17 +131,20 @@ public class SignUpUIManager : MonoBehaviour
         }
     }
 
-    public void IsValidEmail(string email)
+    public async void CheckEmailAsync(string email)
     {
         bool valid = Regex.IsMatch(email, @"[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?");
 
         if (valid)
         {
-            var packet = new TcpPacket(TcpPacketType.EmailDuplication, email);
-            NetworkManager.Instance.SendPacket(packet, 1000,
-            (p) =>
+            TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
+            SendDuplicationCheckPacket("user", "Email", email, tcs);
+            try
             {
-                if (Convert.ToInt16(p.Msg) == 1)
+                var ans = await tcs.Task;
+                JsonTextParser parser = new JsonTextParser();
+                var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
+                if (Convert.ToInt16(msgJson["result"].GetValue()) == 1)
                 {
                     emailCheck.enabled = true;
                     emailCheck.sprite = checkSprite;
@@ -131,17 +154,34 @@ public class SignUpUIManager : MonoBehaviour
                     emailCheck.enabled = true;
                     emailCheck.sprite = warnSprite;
                 }
-            },
-
-            () =>
+            }
+            catch (TcpTimeOutException)
             {
-                Debug.Log("email TimeOut");
-            });
+                Debug.Log("Email TimeOut");
+            }
         }
     }
 
     public void OnConfirmClick()
     {
+        TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
+        JsonObjectCollection jsonObj = new JsonObjectCollection();
+        jsonObj.Add(new JsonStringValue("id", idInput.text));
+        jsonObj.Add(new JsonStringValue("pw", pwInput.text));
+        jsonObj.Add(new JsonStringValue("nick", nickInput.text));
+        jsonObj.Add(new JsonStringValue("email", emailInput.text));
 
+        var packet = new TcpPacket(TcpPacketType.SignUp, jsonObj.ToString());
+        NetworkManager.Instance.SendPacket(packet, tcs, 1000);
+
+        
     }
 }
+
+/*
+JsonTextParser parser = new JsonTextParser();
+JsonObject obj = parser.Parse(strResponse);
+JsonObjectCollection col = (JsonObjectCollection)obj;
+
+String accno = (String)col["accno"].GetValue();
+*/
