@@ -162,7 +162,7 @@ public class SignUpUIManager : MonoBehaviour
         }
     }
 
-    public void OnConfirmClick()
+    public async void OnConfirmClick()
     {
         TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
         JsonObjectCollection jsonObj = new JsonObjectCollection();
@@ -174,7 +174,24 @@ public class SignUpUIManager : MonoBehaviour
         var packet = new TcpPacket(TcpPacketType.SignUp, jsonObj.ToString());
         NetworkManager.Instance.SendPacket(packet, tcs, 1000);
 
-        
+        try
+        {
+            var ans = await tcs.Task;
+            JsonTextParser parser = new JsonTextParser();
+            var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
+            if (Convert.ToInt16(msgJson["result"].GetValue()) != -1)
+            {
+                Debug.Log("회원가입 성공");
+            }
+            else
+            {
+                Debug.Log("회원가입 실패");
+            }
+        }
+        catch (TcpTimeOutException)
+        {
+            Debug.Log("Email TimeOut");
+        }
     }
 }
 
