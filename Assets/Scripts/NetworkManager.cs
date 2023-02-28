@@ -7,6 +7,9 @@ using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
+using System.Security.Authentication;
 
 public delegate void AnswerCallback(TcpPacket packet);
 public delegate void TimeoutCallBack();
@@ -53,7 +56,7 @@ public class NetworkManager : MonoBehaviour
     static NetworkManager instance;
     TcpClient tcpClient;
     IPAddress iPAddress;
-    NetworkStream stream;
+    SslStream stream;
     Dictionary<int, NetworkRequest> requestDict = new();
 
     public bool IsConnected => tcpClient.Connected;
@@ -80,7 +83,20 @@ public class NetworkManager : MonoBehaviour
             }
         }
     }
+    public static bool ValidateServerCertificate(
+                  object sender,
+                  X509Certificate certificate,
+                  X509Chain chain,
+                  SslPolicyErrors sslPolicyErrors)
+    {
+        if (sslPolicyErrors == SslPolicyErrors.None)
+            return true;
 
+        Debug.Log(sslPolicyErrors);
+
+        // Do not allow this client to communicate with unauthenticated servers.
+        return true;
+    }
     public async Task StartConnection()
     {
         if (tcpClient != null && tcpClient.Connected)
@@ -97,16 +113,27 @@ public class NetworkManager : MonoBehaviour
         {
             tcpClient = new TcpClient();
             await tcpClient.ConnectAsync("192.168.56.101", 7000);
-
             Debug.Log("연결 성공");
 
-            stream = tcpClient.GetStream();
+            stream = new SslStream(tcpClient.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
 
+            try
+            {
+                stream.AuthenticateAsClient("dogfight.com");
+            }
+            catch (AuthenticationException e)
+            {
+                Debug.LogErrorFormat("Error authenticating: {0}", e.Message);
+                if (e.InnerException != null)
+                {
+                    Debug.LogErrorFormat("Inner exception: {0}", e.InnerException.Message);
+                }
+                throw;
+            }
 
             await RecvPacket();
 
             Debug.Log("연결 종료");
-
 
             // (5) 스트림과 TcpClient 객체 닫기
             stream.Close();
