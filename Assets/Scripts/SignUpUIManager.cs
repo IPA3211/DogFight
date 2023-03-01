@@ -7,8 +7,6 @@ using TMPro;
 using System;
 using System.Net.Json;
 using System.Threading.Tasks;
-using System.Security.Cryptography;
-using System.Text;
 
 public class SignUpUIManager : MonoBehaviour
 {
@@ -169,7 +167,7 @@ public class SignUpUIManager : MonoBehaviour
         TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
         JsonObjectCollection jsonObj = new JsonObjectCollection();
 
-        var sha256Pass = EncryptionSHA256(pwInput.text);
+        var sha256Pass = Encryptor.EncryptionSHA256(pwInput.text);
 
         jsonObj.Add(new JsonStringValue("id", idInput.text));
         jsonObj.Add(new JsonStringValue("pw", sha256Pass));
@@ -197,24 +195,6 @@ public class SignUpUIManager : MonoBehaviour
         {
             Debug.Log("Email TimeOut");
         }
-    }
-
-    string EncryptionSHA256(string message)
-    {
-        byte[] array = Encoding.Default.GetBytes(message);
-        byte[] hashValue;
-        string result = string.Empty;
-
-        using (SHA256 mySHA256 = SHA256.Create())
-        {
-            hashValue = mySHA256.ComputeHash(array);
-        }
-
-        for (int i = 0; i < hashValue.Length; i++)
-        {
-            result += hashValue[i].ToString("x2");
-        }
-        return result;
     }
 }
 /*
