@@ -8,3 +8,14 @@ public enum TcpPacketType
     Quit = 999,
 }
 
+public enum Table{
+    User
+}
+
+public enum UserTableColumn{
+    IDpk,
+    UserId,
+    PassHash,
+    NickName,
+    Email
+}

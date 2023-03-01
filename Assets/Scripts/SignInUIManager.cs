@@ -36,18 +36,18 @@ public class SignInUIManager : MonoBehaviour
 
         var packet = new TcpPacket(TcpPacketType.SignIn, jsonObj.ToString());
         NetworkManager.Instance.SendPacket(packet, tcs, 1000);
-
         try
         {
             var ans = await tcs.Task;
             JsonTextParser parser = new JsonTextParser();
+            Debug.Log(ans.Msg);
             var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
             if (Convert.ToInt16(msgJson["result"].GetValue()) != -1)
             {
                 PlayerPrefs.SetString("id", idInput.text);
                 PlayerPrefs.SetString("pw", pwInput.text);
                 PlayerPrefs.Save();
-                
+
                 Debug.Log("로그인 성공");
             }
             else

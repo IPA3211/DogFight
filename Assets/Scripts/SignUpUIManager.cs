@@ -49,11 +49,11 @@ public class SignUpUIManager : MonoBehaviour
         nickCheck.sprite = warnSprite;
     }
 
-    void SendDuplicationCheckPacket(string table, string column, string check, TaskCompletionSource<TcpPacket> tcs)
+    void SendDuplicationCheckPacket(string table, int column, string check, TaskCompletionSource<TcpPacket> tcs)
     {
         JsonObjectCollection jsonObj = new JsonObjectCollection();
         jsonObj.Add(new JsonStringValue("table", table));
-        jsonObj.Add(new JsonStringValue("column", column));
+        jsonObj.Add(new JsonNumericValue("column", column));
         jsonObj.Add(new JsonStringValue("check", check));
 
         var packet = new TcpPacket(TcpPacketType.DuplicationCheck, jsonObj.ToString());
@@ -63,7 +63,7 @@ public class SignUpUIManager : MonoBehaviour
     public async void CheckIdAsync(string id)
     {
         TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
-        SendDuplicationCheckPacket("user", "UserId", id, tcs);
+        SendDuplicationCheckPacket("user", (int)UserTableColumn.UserId, id, tcs);
         try
         {
             var ans = await tcs.Task;
@@ -90,7 +90,7 @@ public class SignUpUIManager : MonoBehaviour
     public async void CheckNickNameAsync(string nickName)
     {
         TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
-        SendDuplicationCheckPacket("user", "NickName", nickName, tcs);
+        SendDuplicationCheckPacket("user", (int)UserTableColumn.NickName, nickName, tcs);
         try
         {
             var ans = await tcs.Task;
@@ -138,7 +138,7 @@ public class SignUpUIManager : MonoBehaviour
         if (valid)
         {
             TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
-            SendDuplicationCheckPacket("user", "Email", email, tcs);
+            SendDuplicationCheckPacket("user", (int)UserTableColumn.Email, email, tcs);
             try
             {
                 var ans = await tcs.Task;
