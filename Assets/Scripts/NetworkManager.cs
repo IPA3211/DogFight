@@ -116,32 +116,36 @@ public class NetworkManager : MonoBehaviour
             Debug.Log("연결 성공");
 
             stream = new SslStream(tcpClient.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
-
-            try
-            {
-                stream.AuthenticateAsClient("dogfight.com");
-            }
-            catch (AuthenticationException e)
-            {
-                Debug.LogErrorFormat("Error authenticating: {0}", e.Message);
-                if (e.InnerException != null)
-                {
-                    Debug.LogErrorFormat("Inner exception: {0}", e.InnerException.Message);
-                }
-                throw;
-            }
+            stream.AuthenticateAsClient("dogfight.com");
 
             await RecvPacket();
 
             Debug.Log("연결 종료");
 
-            // (5) 스트림과 TcpClient 객체 닫기
             stream.Close();
             tcpClient.Close();
         }
         catch (SocketException)
         {
             Debug.Log("서버와 연결 할 수 없습니다.");
+        }
+        catch (AuthenticationException e)
+        {
+            Debug.Log("서버와 SSL 연결에 실패했습니다.");
+            Debug.LogErrorFormat("Error authenticating: {0}", e.Message);
+            if (e.InnerException != null)
+            {
+                Debug.LogErrorFormat("Inner exception: {0}", e.InnerException.Message);
+            }
+        }
+    }
+
+    public void StopConnection()
+    {
+        if (tcpClient.Connected)
+        {
+            stream.Close();
+            tcpClient.Close();
         }
     }
 

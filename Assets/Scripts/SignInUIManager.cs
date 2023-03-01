@@ -9,9 +9,9 @@ using System;
 
 public class SignInUIManager : MonoBehaviour
 {
-    TMP_InputField idInput;
-    TMP_InputField pwInput;
-    Toggle saveToggle;
+    [SerializeField] TMP_InputField idInput;
+    [SerializeField] TMP_InputField pwInput;
+    [SerializeField] Toggle saveToggle;
 
     public void OnEnable()
     {
@@ -24,11 +24,8 @@ public class SignInUIManager : MonoBehaviour
         pwInput.text = PlayerPrefs.GetString("pw", "");
     }
 
-    public void OnSignInBtnClick(){
-
-    }
-
-    public async void OnShutdownBtnClickAsync(){
+    public async void OnSignInBtnClick()
+    {
         TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
         JsonObjectCollection jsonObj = new JsonObjectCollection();
 
@@ -37,7 +34,7 @@ public class SignInUIManager : MonoBehaviour
         jsonObj.Add(new JsonStringValue("id", idInput.text));
         jsonObj.Add(new JsonStringValue("pw", sha256Pass));
 
-        var packet = new TcpPacket(TcpPacketType.SignUp, jsonObj.ToString());
+        var packet = new TcpPacket(TcpPacketType.SignIn, jsonObj.ToString());
         NetworkManager.Instance.SendPacket(packet, tcs, 1000);
 
         try
@@ -47,16 +44,22 @@ public class SignInUIManager : MonoBehaviour
             var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
             if (Convert.ToInt16(msgJson["result"].GetValue()) != -1)
             {
-                Debug.Log("회원가입 성공");
+                Debug.Log("로그인 성공");
             }
             else
             {
-                Debug.Log("회원가입 실패");
+                Debug.Log("로그인 실패");
             }
         }
         catch (TcpTimeOutException)
         {
-            Debug.Log("Email TimeOut");
+            Debug.Log("LogIn TimeOut");
         }
+    }
+
+    public void OnShutdownBtnClick()
+    {
+        NetworkManager.Instance.StopConnection();
+        Application.Quit();
     }
 }
