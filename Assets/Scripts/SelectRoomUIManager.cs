@@ -28,10 +28,11 @@ public class SelectRoomUIManager : MonoBehaviour
 
     public void OnSubmitChat(string msg)
     {
+        chatInput.text = "";
         JsonObjectCollection jsonObj = new JsonObjectCollection();
         jsonObj.Add(new JsonStringValue("msg", msg));
         var packet = new TcpPacket(TcpPacketType.Chat, jsonObj.ToString());
-        
+
         NetworkManager.Instance.SendPacket(packet);
     }
 }
