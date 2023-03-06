@@ -10,9 +10,7 @@ using System.Linq;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Authentication;
-
-public delegate void AnswerCallback(TcpPacket packet);
-public delegate void TimeoutCallBack();
+using UnityEngine.Events;
 
 public class NetworkRequest
 {
@@ -59,6 +57,7 @@ public class NetworkManager : MonoBehaviour
     SslStream stream;
     Dictionary<int, NetworkRequest> requestDict = new();
 
+    public UnityEvent<TcpPacket> chatEvent;
     public bool IsConnected => tcpClient.Connected;
     public static NetworkManager Instance => instance;
 
@@ -107,7 +106,6 @@ public class NetworkManager : MonoBehaviour
             tcpClient = null;
             stream = null;
         }
-
 
         try
         {
@@ -201,6 +199,9 @@ public class NetworkManager : MonoBehaviour
                         break;
                     case TcpPacketType.Msg:
                         Debug.Log(packet.Msg);
+                        break;
+                    case TcpPacketType.Chat:
+                        chatEvent?.Invoke(packet);
                         break;
                 }
             }
