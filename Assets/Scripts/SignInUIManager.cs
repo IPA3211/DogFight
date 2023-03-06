@@ -49,6 +49,8 @@ public class SignInUIManager : MonoBehaviour
                 PlayerPrefs.Save();
 
                 Debug.Log("로그인 성공");
+                
+                NetworkManager.Instance.OnSignIn();
             }
             else
             {

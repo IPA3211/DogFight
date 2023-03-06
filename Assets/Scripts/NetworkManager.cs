@@ -57,7 +57,12 @@ public class NetworkManager : MonoBehaviour
     SslStream stream;
     Dictionary<int, NetworkRequest> requestDict = new();
 
+    public UnityEvent onConnect;
+    public UnityEvent onDisconnect;
+    public UnityEvent onSignIn;
+    public UnityEvent<TcpPacket> onPacketArrive;
     public UnityEvent<TcpPacket> onChatPacketArrive;
+
     public bool IsConnected => tcpClient.Connected;
     public static NetworkManager Instance => instance;
 
@@ -111,11 +116,10 @@ public class NetworkManager : MonoBehaviour
         {
             tcpClient = new TcpClient();
             await tcpClient.ConnectAsync("192.168.56.101", 7000);
-            Debug.Log("연결 성공");
-
             stream = new SslStream(tcpClient.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
             stream.AuthenticateAsClient("dogfight.com");
 
+            onConnect.Invoke();
             await RecvPacket();
 
             Debug.Log("연결 종료");
@@ -125,7 +129,8 @@ public class NetworkManager : MonoBehaviour
         }
         catch (SocketException)
         {
-            Debug.Log("서버와 연결 할 수 없습니다.");
+            Debug.Log("연결 실패");
+            onDisconnect.Invoke();
         }
         catch (AuthenticationException e)
         {
@@ -135,6 +140,7 @@ public class NetworkManager : MonoBehaviour
             {
                 Debug.LogErrorFormat("Inner exception: {0}", e.InnerException.Message);
             }
+            onDisconnect.Invoke();
         }
     }
 
@@ -145,6 +151,7 @@ public class NetworkManager : MonoBehaviour
             stream.Close();
             tcpClient.Close();
         }
+        onDisconnect.Invoke();
     }
 
     public void SendPacket(TcpPacket packet, TaskCompletionSource<TcpPacket> tsc = null, float duration = 0)
@@ -163,6 +170,7 @@ public class NetworkManager : MonoBehaviour
         else
         {
             Debug.Log("서버와 연결 할 수 없습니다.");
+            onDisconnect.Invoke();
         }
     }
 
@@ -179,6 +187,7 @@ public class NetworkManager : MonoBehaviour
 
             if (nbytes <= 0)
             {
+                onDisconnect.Invoke();
                 break;
             }
 
@@ -211,5 +220,10 @@ public class NetworkManager : MonoBehaviour
         }
 
         mem.Close();
+    }
+
+    public void OnSignIn()
+    {
+        onSignIn.Invoke();
     }
 }
