@@ -147,13 +147,13 @@ public class NetworkManager : MonoBehaviour
         }
     }
 
-    public void SendPacket(TcpPacket packet, TaskCompletionSource<TcpPacket> tsc, float duration = 0)
+    public void SendPacket(TcpPacket packet, TaskCompletionSource<TcpPacket> tsc = null, float duration = 0)
     {
         if (IsConnected)
         {
             var json = JsonUtility.ToJson(packet);
             byte[] buff = Encoding.UTF8.GetBytes(json);
-            if (duration > 0)
+            if (tsc != null)
             {
                 NetworkRequest request = new NetworkRequest(packet, tsc, duration);
                 requestDict.Add(packet.Index, request);
