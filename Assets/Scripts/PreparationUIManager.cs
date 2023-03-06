@@ -11,32 +11,39 @@ public class PreparationUIManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        NetworkManager.Instance.onConnect.AddListener(OnConnect);
-        NetworkManager.Instance.onDisconnect.AddListener(onDisconnect);
-        NetworkManager.Instance.onSignIn.AddListener(onSignIn);
+        NetworkManager.Instance.onConnect.AddListener(ShowSignInUI);
+        NetworkManager.Instance.onDisconnect.AddListener(ShowConnectUI);
     }
 
-    void OnConnect()
+    void closeAllUI()
     {
         connectUI.SetActive(false);
+        signInUI.SetActive(false);
+        signUpUI.SetActive(false);
+        selectRoomUI.SetActive(false);
+    }
+
+    public void ShowSignInUI()
+    {
+        closeAllUI();
         signInUI.SetActive(true);
-        signUpUI.SetActive(false);
-        selectRoomUI.SetActive(false);
     }
 
-    void onDisconnect()
+    public void ShowSignUpUI()
     {
+        closeAllUI();
+        signUpUI.SetActive(true);
+    }
+
+    public void ShowConnectUI()
+    {
+        closeAllUI();
         connectUI.SetActive(true);
-        signInUI.SetActive(false);
-        signUpUI.SetActive(false);
-        selectRoomUI.SetActive(false);
     }
 
-    void onSignIn()
+    public void ShowSelectRoomUI()
     {
-        connectUI.SetActive(false);
-        signInUI.SetActive(false);
-        signUpUI.SetActive(false);
+        closeAllUI();
         selectRoomUI.SetActive(true);
     }
 }

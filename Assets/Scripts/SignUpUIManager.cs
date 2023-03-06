@@ -21,6 +21,7 @@ public class SignUpUIManager : MonoBehaviour
     [SerializeField] Image pwCheck;
     [SerializeField] Image emailCheck;
     [SerializeField] Image nickCheck;
+    [SerializeField] GameObject warningText;
     [Header("Sprite")]
     [SerializeField] Sprite checkSprite;
     [SerializeField] Sprite warnSprite;
@@ -42,6 +43,7 @@ public class SignUpUIManager : MonoBehaviour
         pwCheck.enabled = false;
         emailCheck.enabled = false;
         nickCheck.enabled = false;
+        warningText.SetActive(false);
 
         idCheck.sprite = warnSprite;
         pwCheck.sprite = warnSprite;
@@ -184,11 +186,11 @@ public class SignUpUIManager : MonoBehaviour
             var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
             if (Convert.ToInt16(msgJson["result"].GetValue()) != -1)
             {
-                Debug.Log("회원가입 성공");
+                GetComponentInParent<PreparationUIManager>().ShowSignInUI();
             }
             else
             {
-                Debug.Log("회원가입 실패");
+                warningText.SetActive(true);
             }
         }
         catch (TcpTimeOutException)

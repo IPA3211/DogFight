@@ -59,7 +59,6 @@ public class NetworkManager : MonoBehaviour
 
     public UnityEvent onConnect;
     public UnityEvent onDisconnect;
-    public UnityEvent onSignIn;
     public UnityEvent<TcpPacket> onPacketArrive;
     public UnityEvent<TcpPacket> onChatPacketArrive;
 
@@ -220,10 +219,5 @@ public class NetworkManager : MonoBehaviour
         }
 
         mem.Close();
-    }
-
-    public void OnSignIn()
-    {
-        onSignIn.Invoke();
     }
 }
