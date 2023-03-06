@@ -12,15 +12,15 @@ public class SelectRoomUIManager : MonoBehaviour
 
     public void OnEnable()
     {
-        NetworkManager.Instance.chatEvent.AddListener(setChat);
+        NetworkManager.Instance.onChatPacketArrive.AddListener(OnChatPacketArrive);
         chatInput.onSubmit.AddListener(OnSubmitChat);
     }
-    public void setChat(TcpPacket packet)
+    public void OnChatPacketArrive(TcpPacket packet)
     {
         JsonTextParser parser = new JsonTextParser();
         var msgJson = (JsonObjectCollection)parser.Parse(packet.Msg);
 
-        var sender = (string)msgJson["result"].GetValue();
+        var sender = (string)msgJson["sender"].GetValue();
         var msg = (string)msgJson["msg"].GetValue();
 
         Instantiate(chatObject, chatScroll).GetComponent<TMP_Text>().text = $"{sender} : {msg}";

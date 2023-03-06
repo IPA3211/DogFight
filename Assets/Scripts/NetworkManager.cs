@@ -57,7 +57,7 @@ public class NetworkManager : MonoBehaviour
     SslStream stream;
     Dictionary<int, NetworkRequest> requestDict = new();
 
-    public UnityEvent<TcpPacket> chatEvent;
+    public UnityEvent<TcpPacket> onChatPacketArrive;
     public bool IsConnected => tcpClient.Connected;
     public static NetworkManager Instance => instance;
 
@@ -201,7 +201,7 @@ public class NetworkManager : MonoBehaviour
                         Debug.Log(packet.Msg);
                         break;
                     case TcpPacketType.Chat:
-                        chatEvent?.Invoke(packet);
+                        onChatPacketArrive?.Invoke(packet);
                         break;
                 }
             }
