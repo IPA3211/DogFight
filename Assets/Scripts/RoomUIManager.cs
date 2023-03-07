@@ -10,20 +10,31 @@ public class RoomUIManager : MonoBehaviour
     [SerializeField] Transform chatScroll;
     [SerializeField] GameObject chatObject;
 
+    public void Start()
+    {
+        chatInput.onSubmit.AddListener(OnSubmitChat);
+    }
+    
     public void OnEnable()
     {
         NetworkManager.Instance.onPacketArrive.AddListener(OnChatPacketArrive);
-        chatInput.onSubmit.AddListener(OnSubmitChat);
+    }
+    public void OnDisable()
+    {
+        NetworkManager.Instance.onPacketArrive.RemoveListener(OnChatPacketArrive);
     }
     public void OnChatPacketArrive(TcpPacket packet)
     {
-        JsonTextParser parser = new JsonTextParser();
-        var msgJson = (JsonObjectCollection)parser.Parse(packet.Msg);
+        if (packet.Order == (int)TcpPacketType.Chat)
+        {
+            JsonTextParser parser = new JsonTextParser();
+            var msgJson = (JsonObjectCollection)parser.Parse(packet.Msg);
 
-        var sender = (string)msgJson["sender"].GetValue();
-        var msg = (string)msgJson["msg"].GetValue();
+            var sender = (string)msgJson["sender"].GetValue();
+            var msg = (string)msgJson["msg"].GetValue();
 
-        Instantiate(chatObject, chatScroll).GetComponent<TMP_Text>().text = $"{sender} : {msg}";
+            Instantiate(chatObject, chatScroll).GetComponent<TMP_Text>().text = $"{sender} : {msg}";
+        }
     }
 
     public void OnSubmitChat(string msg)

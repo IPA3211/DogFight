@@ -12,11 +12,15 @@ public class SelectRoomUIManager : MonoBehaviour
     [SerializeField] Transform chatScroll;
     [SerializeField] GameObject chatObject;
 
+    public void Start()
+    {
+        chatInput.onSubmit.AddListener(OnSubmitChat);
+    }
+
     public void OnEnable()
     {
         NetworkManager.Instance.onPacketArrive.AddListener(OnChatPacketArrive);
         NetworkManager.Instance.onPacketArrive.AddListener(OnRoomListPacketArrive);
-        chatInput.onSubmit.AddListener(OnSubmitChat);
     }
 
     public void OnDisable()

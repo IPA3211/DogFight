@@ -42,10 +42,12 @@ public class MakeRoomUIManager : MonoBehaviour
 
             var sha256Pass = Encryptor.EncryptionSHA256(pwInput.text);
 
-            jsonObj.Add(new JsonStringValue("id", idInput.text));
+            jsonObj.Add(new JsonStringValue("name", idInput.text));
+            jsonObj.Add(new JsonBooleanValue("pivate", privateToggle.isOn));
+            jsonObj.Add(new JsonNumericValue("max", (capaDrop.value + 1) * 2));
             jsonObj.Add(new JsonStringValue("pw", sha256Pass));
 
-            var packet = new TcpPacket(TcpPacketType.SignUp, jsonObj.ToString());
+            var packet = new TcpPacket(TcpPacketType.RoomCreate, jsonObj.ToString());
             NetworkManager.Instance.SendPacket(packet, tcs, 1000);
 
             try
