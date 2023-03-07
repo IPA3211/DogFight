@@ -42,7 +42,7 @@ public class SignInUIManager : MonoBehaviour
             JsonTextParser parser = new JsonTextParser();
             Debug.Log(ans.Msg);
             var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
-            if (Convert.ToInt16(msgJson["result"].GetValue()) != -1)
+            if ((msgJson["result"] as JsonNumericValue).Value != -1)
             {
                 PlayerPrefs.SetString("id", idInput.text);
                 PlayerPrefs.SetString("pw", pwInput.text);

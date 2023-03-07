@@ -40,7 +40,8 @@ public class RoomUIManager : MonoBehaviour
     public void ClearChat()
     {
         var children = chatScroll.GetComponentsInChildren<Transform>();
-        for (int i = 0; i < chatScroll.childCount; i++)
+        var childrenCount = chatScroll.childCount;
+        for (int i = 0; i < childrenCount; i++)
         {
             DestroyImmediate(children[i].gameObject);
         }

@@ -12,7 +12,8 @@ public class SelectRoomUIManager : MonoBehaviour
     [SerializeField] GameObject roomObject;
     [SerializeField] Transform chatScroll;
     [SerializeField] GameObject chatObject;
-
+    [SerializeField] float renewLoopTime;
+    float sumTime;
     public void Start()
     {
         chatInput.onSubmit.AddListener(OnSubmitChat);
@@ -24,6 +25,16 @@ public class SelectRoomUIManager : MonoBehaviour
         NetworkManager.Instance.onPacketArrive.AddListener(OnRoomListPacketArrive);
         RenewRoomList();
         ClearChat();
+    }
+
+    void Update()
+    {
+        sumTime += Time.deltaTime;
+        if (renewLoopTime < sumTime)
+        {
+            RenewRoomList();
+            sumTime = 0;
+        }
     }
 
     public void OnDisable()
@@ -39,8 +50,8 @@ public class SelectRoomUIManager : MonoBehaviour
             JsonTextParser parser = new JsonTextParser();
             var msgJson = (JsonObjectCollection)parser.Parse(packet.Msg);
 
-            var sender = (string)msgJson["sender"].GetValue();
-            var msg = (string)msgJson["msg"].GetValue();
+            var sender = (msgJson["sender"] as JsonStringValue).Value;
+            var msg = (msgJson["msg"] as JsonStringValue).Value;
 
             Instantiate(chatObject, chatScroll).GetComponent<TMP_Text>().text = $"{sender} : {msg}";
         }
@@ -53,11 +64,11 @@ public class SelectRoomUIManager : MonoBehaviour
             JsonTextParser parser = new JsonTextParser();
             var msgJson = (JsonObjectCollection)parser.Parse(packet.Msg);
 
-            var name = (string)msgJson["name"].GetValue();
-            var isPrivate = (bool)msgJson["isPrivate"].GetValue();
-            var maxPlayer = (int)msgJson["maxPlayer"].GetValue();
-            var curPlayer = (int)msgJson["curPlayer"].GetValue();
-            var nickname = (string)msgJson["nickname"].GetValue();
+            var name = (msgJson["name"] as JsonStringValue).Value;
+            var isPrivate = (msgJson["isPrivate"] as JsonBooleanValue).Value;
+            var maxPlayer = (msgJson["maxPlayer"] as JsonNumericValue).Value;
+            var curPlayer = (msgJson["curPlayer"] as JsonNumericValue).Value;
+            var nickname = (msgJson["nickname"] as JsonStringValue).Value;
 
             Instantiate(roomObject, roomScroll).GetComponent<RoomBtnManager>().SetInfo(
                 "0", name, "0", $"{curPlayer} / {maxPlayer}", nickname, isPrivate.ToString(), "0"
@@ -68,19 +79,21 @@ public class SelectRoomUIManager : MonoBehaviour
     public void RenewRoomList()
     {
         var children = roomScroll.GetComponentsInChildren<Transform>();
-        for (int i = 0; i < roomScroll.childCount; i++)
+        var childrenCount = roomScroll.childCount;
+        for (int i = 0; i < childrenCount; i++)
         {
             DestroyImmediate(children[i].gameObject);
         }
 
-        var packet = new TcpPacket(TcpPacketType.GetRoomList, "");
+        var packet = new TcpPacket(TcpPacketType.GetRoomList, "{}");
         NetworkManager.Instance.SendPacket(packet);
     }
 
     public void ClearChat()
     {
         var children = chatScroll.GetComponentsInChildren<Transform>();
-        for (int i = 0; i < chatScroll.childCount; i++)
+        var childrenCount = chatScroll.childCount;
+        for (int i = 0; i < childrenCount; i++)
         {
             DestroyImmediate(children[i].gameObject);
         }

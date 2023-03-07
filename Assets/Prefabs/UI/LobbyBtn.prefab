@@ -1645,6 +1645,7 @@ GameObject:
   - component: {fileID: 8846117425341128851}
   - component: {fileID: 8846117425341128850}
   - component: {fileID: 8846117425341128854}
+  - component: {fileID: 145348728323119235}
   m_Layer: 5
   m_Name: LobbyBtn
   m_TagString: Untagged
@@ -1807,3 +1808,22 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &145348728323119235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8846117425341128876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e592f02672c7ae847a59b505d3fcedae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  idText: {fileID: 8846117424121338247}
+  titleText: {fileID: 8846117425242423306}
+  modeText: {fileID: 8846117424309059032}
+  capaText: {fileID: 8846117423595400179}
+  hostText: {fileID: 8846117424203483880}
+  priText: {fileID: 8846117423359152253}
+  pingText: {fileID: 8846117424579440571}

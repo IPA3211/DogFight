@@ -19154,10 +19154,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   chatInput: {fileID: 854987617}
-  roomScroll: {fileID: 0}
-  roomObject: {fileID: 0}
+  roomScroll: {fileID: 1339106562}
+  roomObject: {fileID: 8846117425341128876, guid: d9e22e4eadcbacd49968bf5fae912600, type: 3}
   chatScroll: {fileID: 265326489}
   chatObject: {fileID: 1930734177052553556, guid: 79e85a5ac5d57a546a9ed60b15c36913, type: 3}
+  renewLoopTime: 10
 --- !u!1 &1900974256
 GameObject:
   m_ObjectHideFlags: 0
