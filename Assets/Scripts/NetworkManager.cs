@@ -60,7 +60,6 @@ public class NetworkManager : MonoBehaviour
     public UnityEvent onConnect;
     public UnityEvent onDisconnect;
     public UnityEvent<TcpPacket> onPacketArrive;
-    public UnityEvent<TcpPacket> onChatPacketArrive;
 
     public bool IsConnected => tcpClient.Connected;
     public static NetworkManager Instance => instance;
@@ -205,13 +204,8 @@ public class NetworkManager : MonoBehaviour
                             requestDict[packet.Index].OnAnswerArrive(packet);
                         }
                         break;
-                    case TcpPacketType.Msg:
-                        Debug.Log(packet.Msg);
-                        break;
-                    case TcpPacketType.Chat:
-                        onChatPacketArrive?.Invoke(packet);
-                        break;
                 }
+                onPacketArrive.Invoke(packet);
             }
 
             Array.Clear(outbuf, 0, outbuf.Length);
