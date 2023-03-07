@@ -78,11 +78,9 @@ public class SelectRoomUIManager : MonoBehaviour
 
     public void RenewRoomList()
     {
-        var children = roomScroll.GetComponentsInChildren<Transform>();
-        var childrenCount = roomScroll.childCount;
-        for (int i = 0; i < childrenCount; i++)
+        foreach (Transform child in roomScroll.transform)
         {
-            DestroyImmediate(children[i].gameObject);
+            Destroy(child.gameObject);
         }
 
         var packet = new TcpPacket(TcpPacketType.GetRoomList, "{}");
@@ -91,11 +89,9 @@ public class SelectRoomUIManager : MonoBehaviour
 
     public void ClearChat()
     {
-        var children = chatScroll.GetComponentsInChildren<Transform>();
-        var childrenCount = chatScroll.childCount;
-        for (int i = 0; i < childrenCount; i++)
+        foreach (Transform child in chatScroll.transform)
         {
-            DestroyImmediate(children[i].gameObject);
+            Destroy(child.gameObject);
         }
     }
 
