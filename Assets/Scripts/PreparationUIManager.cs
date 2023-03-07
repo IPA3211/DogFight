@@ -8,6 +8,7 @@ public class PreparationUIManager : MonoBehaviour
     [SerializeField] GameObject signInUI;
     [SerializeField] GameObject signUpUI;
     [SerializeField] GameObject selectRoomUI;
+    [SerializeField] GameObject roomUI;
     // Start is called before the first frame update
     void Start()
     {
@@ -21,6 +22,7 @@ public class PreparationUIManager : MonoBehaviour
         signInUI.SetActive(false);
         signUpUI.SetActive(false);
         selectRoomUI.SetActive(false);
+        roomUI.SetActive(false);
     }
 
     public void ShowSignInUI()
@@ -45,5 +47,11 @@ public class PreparationUIManager : MonoBehaviour
     {
         closeAllUI();
         selectRoomUI.SetActive(true);
+    }
+
+    public void ShowRoomUI()
+    {
+        closeAllUI();
+        roomUI.SetActive(true);
     }
 }
