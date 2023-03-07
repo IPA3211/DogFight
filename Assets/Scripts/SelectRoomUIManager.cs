@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Net.Json;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 
@@ -21,6 +22,8 @@ public class SelectRoomUIManager : MonoBehaviour
     {
         NetworkManager.Instance.onPacketArrive.AddListener(OnChatPacketArrive);
         NetworkManager.Instance.onPacketArrive.AddListener(OnRoomListPacketArrive);
+        RenewRoomList();
+        ClearChat();
     }
 
     public void OnDisable()
@@ -59,6 +62,27 @@ public class SelectRoomUIManager : MonoBehaviour
             Instantiate(roomObject, roomScroll).GetComponent<RoomBtnManager>().SetInfo(
                 "0", name, "0", $"{curPlayer} / {maxPlayer}", nickname, isPrivate.ToString(), "0"
             );
+        }
+    }
+
+    public void RenewRoomList()
+    {
+        var children = roomScroll.GetComponentsInChildren<Transform>();
+        for (int i = 0; i < roomScroll.childCount; i++)
+        {
+            DestroyImmediate(children[i].gameObject);
+        }
+
+        var packet = new TcpPacket(TcpPacketType.GetRoomList, "");
+        NetworkManager.Instance.SendPacket(packet);
+    }
+
+    public void ClearChat()
+    {
+        var children = chatScroll.GetComponentsInChildren<Transform>();
+        for (int i = 0; i < chatScroll.childCount; i++)
+        {
+            DestroyImmediate(children[i].gameObject);
         }
     }
 

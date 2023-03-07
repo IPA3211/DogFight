@@ -14,10 +14,10 @@ public class RoomUIManager : MonoBehaviour
     {
         chatInput.onSubmit.AddListener(OnSubmitChat);
     }
-    
     public void OnEnable()
     {
         NetworkManager.Instance.onPacketArrive.AddListener(OnChatPacketArrive);
+        ClearChat();
     }
     public void OnDisable()
     {
@@ -34,6 +34,15 @@ public class RoomUIManager : MonoBehaviour
             var msg = (string)msgJson["msg"].GetValue();
 
             Instantiate(chatObject, chatScroll).GetComponent<TMP_Text>().text = $"{sender} : {msg}";
+        }
+    }
+
+    public void ClearChat()
+    {
+        var children = chatScroll.GetComponentsInChildren<Transform>();
+        for (int i = 0; i < chatScroll.childCount; i++)
+        {
+            DestroyImmediate(children[i].gameObject);
         }
     }
 
