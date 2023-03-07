@@ -25,6 +25,7 @@ public class SignUpUIManager : MonoBehaviour
     [Header("Sprite")]
     [SerializeField] Sprite checkSprite;
     [SerializeField] Sprite warnSprite;
+    bool isPocessing;
 
     public void OnEnable()
     {
@@ -166,43 +167,41 @@ public class SignUpUIManager : MonoBehaviour
 
     public async void OnConfirmClick()
     {
-        TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
-        JsonObjectCollection jsonObj = new JsonObjectCollection();
-
-        var sha256Pass = Encryptor.EncryptionSHA256(pwInput.text);
-
-        jsonObj.Add(new JsonStringValue("id", idInput.text));
-        jsonObj.Add(new JsonStringValue("pw", sha256Pass));
-        jsonObj.Add(new JsonStringValue("nick", nickInput.text));
-        jsonObj.Add(new JsonStringValue("email", emailInput.text));
-
-        var packet = new TcpPacket(TcpPacketType.SignUp, jsonObj.ToString());
-        NetworkManager.Instance.SendPacket(packet, tcs, 1000);
-
-        try
+        if (!isPocessing)
         {
-            var ans = await tcs.Task;
-            JsonTextParser parser = new JsonTextParser();
-            var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
-            if (Convert.ToInt16(msgJson["result"].GetValue()) != -1)
+            isPocessing = true;
+            TaskCompletionSource<TcpPacket> tcs = new TaskCompletionSource<TcpPacket>();
+            JsonObjectCollection jsonObj = new JsonObjectCollection();
+
+            var sha256Pass = Encryptor.EncryptionSHA256(pwInput.text);
+
+            jsonObj.Add(new JsonStringValue("id", idInput.text));
+            jsonObj.Add(new JsonStringValue("pw", sha256Pass));
+            jsonObj.Add(new JsonStringValue("nick", nickInput.text));
+            jsonObj.Add(new JsonStringValue("email", emailInput.text));
+
+            var packet = new TcpPacket(TcpPacketType.SignUp, jsonObj.ToString());
+            NetworkManager.Instance.SendPacket(packet, tcs, 1000);
+
+            try
             {
-                GetComponentInParent<PreparationUIManager>().ShowSignInUI();
+                var ans = await tcs.Task;
+                JsonTextParser parser = new JsonTextParser();
+                var msgJson = (JsonObjectCollection)parser.Parse(ans.Msg);
+                if (Convert.ToInt16(msgJson["result"].GetValue()) != -1)
+                {
+                    GetComponentInParent<PreparationUIManager>().ShowSignInUI();
+                }
+                else
+                {
+                    warningText.SetActive(true);
+                }
             }
-            else
+            catch (TcpTimeOutException)
             {
-                warningText.SetActive(true);
+                Debug.Log("Email TimeOut");
             }
-        }
-        catch (TcpTimeOutException)
-        {
-            Debug.Log("Email TimeOut");
+            isPocessing = false;
         }
     }
 }
-/*
-JsonTextParser parser = new JsonTextParser();
-JsonObject obj = parser.Parse(strResponse);
-JsonObjectCollection col = (JsonObjectCollection)obj;
-
-String accno = (String)col["accno"].GetValue();
-*/
