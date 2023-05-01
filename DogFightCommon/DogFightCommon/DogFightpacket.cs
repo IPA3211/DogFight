@@ -4,6 +4,6 @@ namespace DogFightCommon
 {
     namespace Packet
     {
-        
+
     }
 }
