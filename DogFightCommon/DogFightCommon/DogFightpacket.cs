@@ -6,40 +6,72 @@ namespace DogFightCommon
     namespace Packet
     {
         [Serializable]
-        class SerializableVector3
+        public class SerializableVector3
         {
             [SerializeField] float x, y, z;
 
-            SerializableVector3(float x, float y, float z)
+            void Init(float x, float y, float z)
             {
                 this.x = x;
                 this.y = y;
                 this.z = z;
             }
+            public SerializableVector3(float x, float y, float z)
+            {
+                Init(x, y, z);
+            }
+            public SerializableVector3(Vector3 vector)
+            {
+                Init(vector.x, vector.y, vector.z);
+            }
 
-            Vector3 GetVector3 ()
+            public Vector3 GetVector3()
             {
                 return new Vector3(x, y, z);
             }
         }
 
         [Serializable]
-        class SerializableQuaternion
+        public class SerializableQuaternion
         {
             [SerializeField] float x, y, z, w;
 
-            SerializableQuaternion(float x, float y, float z, float w)
+            void Init(float x, float y, float z, float w)
             {
                 this.x = x;
                 this.y = y;
                 this.z = z;
                 this.w = w;
             }
+            public SerializableQuaternion(float x, float y, float z, float w)
+            {
+                Init(x, y, z, w);
+            }
+            public SerializableQuaternion(Quaternion quaternion)
+            {
+                Init(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
+            }
 
-            Quaternion GetQuaternion()
+            public Quaternion GetQuaternion()
             {
                 return new Quaternion(x, y, z, w);
             }
+        }
+
+        [Serializable]
+        public class SerializableTransform
+        {
+            [SerializeField] SerializableVector3 position;
+            [SerializeField] SerializableQuaternion rotation;
+            [SerializeField] SerializableVector3 scale;
+
+            public SerializableTransform(Transform transform)
+            {
+                position = new SerializableVector3(transform.position);
+                rotation = new SerializableQuaternion(transform.rotation);
+                scale = new SerializableVector3(transform.localScale);
+            }
+
         }
     }
 }
