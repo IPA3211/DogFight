@@ -22,7 +22,7 @@ public class FighterController : MonoBehaviour
             var isFired = fighter.FireBullet();
             if (isFired)
             {
-
+                
             }
         }
     }
