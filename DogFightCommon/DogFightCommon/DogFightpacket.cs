@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace DogFightCommon
 {
@@ -72,6 +73,12 @@ namespace DogFightCommon
                 scale = new SerializableVector3(transform.localScale);
             }
 
+            public void SetTransform(Transform transform)
+            {
+                transform.position = position.GetVector3();
+                transform.rotation = rotation.GetQuaternion();
+                transform.localScale = scale.GetVector3();
+            }
         }
     }
 }
