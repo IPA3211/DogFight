@@ -14,10 +14,10 @@ using WebSocketSharp.Server;
 
 public class WsGameService : WebSocketBehavior
 {
-    NetworkManager networkManager;
-    public void SetNetworkManager(NetworkManager inNetworkManager)
+    WebSocketManager WebsocketManager;
+    public void SetNetworkManager(WebSocketManager inWebsocket)
     {
-        networkManager = inNetworkManager;
+        WebsocketManager = inWebsocket;
     }
 
     public void SendTo(object data, string id)
@@ -40,7 +40,7 @@ public class WsGameService : WebSocketBehavior
         Debug.Log("Hello " + ID);
         MainThreadInvoker.Instance.Enqueue(() =>
         {
-            networkManager.onOpen.Invoke(ID, null);
+            WebsocketManager.onOpen.Invoke(ID, null);
         });
     }
 
@@ -48,7 +48,7 @@ public class WsGameService : WebSocketBehavior
     {
         MainThreadInvoker.Instance.Enqueue(() =>
         {
-            networkManager.onMessage.Invoke(ID, e);
+            WebsocketManager.onMessage.Invoke(ID, e);
         });
     }
 
@@ -62,12 +62,12 @@ public class WsGameService : WebSocketBehavior
         base.OnClose(e);
 
         Debug.Log("Bye " + ID);
-        MainThreadInvoker.Instance.Enqueue(() => { networkManager.onClose.Invoke(ID, e); });
+        MainThreadInvoker.Instance.Enqueue(() => { WebsocketManager.onClose.Invoke(ID, e); });
 
     }
 }
 
-public class NetworkManager : MonoBehaviour
+public class WebSocketManager : MonoBehaviour
 {
     WebSocketServer wssv;
     WsGameService webSocketService;
