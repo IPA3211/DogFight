@@ -1,6 +1,7 @@
 #define SEND_PACKET_WITH_BYTE
 
-using PcgPacket;
+using DogFightCommon.WebSocketPacket;
+using DogFightCommon.Util;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
