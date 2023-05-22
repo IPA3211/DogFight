@@ -1,217 +1,156 @@
-using UnityEngine;
+#define SEND_PACKET_WITH_BYTE
+
+using PcgPacket;
 using System;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.IO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Linq;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Security.Authentication;
+using UnityEngine;
 using UnityEngine.Events;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 
-public class NetworkRequest
+/* 수신, 송신 처리 */
+
+public class WsGameService : WebSocketBehavior
 {
-    TcpPacket packet;
-    TaskCompletionSource<TcpPacket> tsc;
-    float duration;
-
-    public TcpPacket Packet => packet;
-
-    public NetworkRequest(TcpPacket pack, TaskCompletionSource<TcpPacket> inTsc, float dur)
+    NetworkManager networkManager;
+    public void SetNetworkManager(NetworkManager inNetworkManager)
     {
-        packet = pack;
-        tsc = inTsc;
-        duration = dur;
+        networkManager = inNetworkManager;
     }
 
-    public bool UpdateDuration(float delta)
+    public void SendTo(object data, string id)
     {
-        duration -= delta;
+#if(SEND_PACKET_WITH_BYTE)
+        var json = ByteUtil.ObjectToByteArray(data);
+        Debug.Log($"SEND TO {id} : {json.Length} Byte");
+#else
+        var json = JsonUtility.ToJson(data);
+        Debug.Log($"SEND TO {id} : {System.Text.Encoding.Default.GetBytes(json).Length} Byte : {json.Substring(0, Math.Min(100, json.Length))}");
+#endif
 
-        if (duration < 0)
+        Sessions.SendToAsync(json, id, (b) => { });
+    }
+
+    protected override void OnOpen()
+    {
+        base.OnOpen();
+
+        Debug.Log("Hello " + ID);
+        MainThreadInvoker.Instance.Enqueue(() =>
         {
-            return true;
-        }
-        return false;
+            networkManager.onOpen.Invoke(ID, null);
+        });
     }
 
-    public void OnAnswerArrive(TcpPacket packet)
+    protected override void OnMessage(MessageEventArgs e)
     {
-        tsc.SetResult(packet);
+        MainThreadInvoker.Instance.Enqueue(() =>
+        {
+            networkManager.onMessage.Invoke(ID, e);
+        });
     }
 
-    public void OnRemove()
+    protected override void OnError(ErrorEventArgs e)
     {
-        TimeoutException e = new TimeoutException();
-        tsc.SetException(e);
+        Debug.LogError(e.Exception);
+    }
+
+    protected override void OnClose(CloseEventArgs e)
+    {
+        base.OnClose(e);
+
+        Debug.Log("Bye " + ID);
+        MainThreadInvoker.Instance.Enqueue(() => { networkManager.onClose.Invoke(ID, e); });
+
     }
 }
+
 public class NetworkManager : MonoBehaviour
 {
-    static NetworkManager instance;
-    TcpClient tcpClient;
-    IPAddress iPAddress;
-    SslStream stream;
+    WebSocketServer wssv;
+    WsGameService webSocketService;
+
     Dictionary<int, NetworkRequest> requestDict = new();
 
-    public UnityEvent onConnect;
-    public UnityEvent onDisconnect;
-    public UnityEvent<TcpPacket> onPacketArrive;
-
-    public bool IsConnected => tcpClient.Connected;
-    public static NetworkManager Instance => instance;
-
-    void Awake()
-    {
-        instance = this;
-    }
+    public UnityEvent<string, object> onOpen;
+    public UnityEvent<string, object> onClose;
+    public UnityEvent<string, object> onMessage;
+    public UnityEvent<string, WebSocketPacket> onPacketArrive;
 
     // Start is called before the first frame update
-    async void Start()
+    void Start()
     {
-        await StartConnection();
+        wssv = new WebSocketServer(System.Net.IPAddress.Any, 7000);
+        Action<WsGameService> SetupService = AddBehaviorHandler;
+
+        wssv.AddWebSocketService("/Game", SetupService);
+
+        onMessage.AddListener(OnMessage);
+
+        wssv.Start();
+        Debug.Log("Server Open!");
     }
 
-    public void FixedUpdate()
+    private void AddBehaviorHandler(WsGameService wsBehavior)
     {
-        foreach (var item in requestDict.Values)
+        webSocketService = wsBehavior;
+        wsBehavior.SetNetworkManager(this);
+    }
+
+    public void SendPacket(WebSocketPacket packet, string id, TaskCompletionSource<WebSocketPacket> tsc = null, float duration = 0)
+    {
+        if (tsc != null)
         {
-            if (item.UpdateDuration(Time.fixedDeltaTime))
+            NetworkRequest request = new NetworkRequest(packet, tsc, duration);
+            requestDict.Add(packet.Index, request);
+        }
+
+        webSocketService.SendTo(packet, id);
+    }
+
+    public void OnMessage(string id, object data)
+    {
+        var e = data as MessageEventArgs;
+#if (SEND_PACKET_WITH_BYTE)
+        var packet = ByteUtil.ByteArrayToObject(e.RawData) as WebSocketPacket;
+        Debug.Log($"ARRIVE FROM {id} : {e.RawData.Length} Byte");
+#else
+        Debug.Log($"ARRIVE FROM {id} : {System.Text.Encoding.Default.GetBytes(e.Data).Length} Byte : {e.Data.Substring(0, Math.Min(100, e.Data.Length))}");
+
+        var packet_raw = JsonUtility.FromJson<WebSocketPacket>(e.Data);
+        Type t = GetType("PcgPacket." + packet_raw.Order);
+        var packet = (WebSocketPacket)JsonUtility.FromJson(e.Data, t);
+#endif
+
+        if (packet.IsAns)
+        {
+            if (requestDict.ContainsKey(packet.AnsTo))
             {
-                requestDict.Remove(item.Packet.Index);
-            }
-        }
-    }
-    public static bool ValidateServerCertificate(
-                  object sender,
-                  X509Certificate certificate,
-                  X509Chain chain,
-                  SslPolicyErrors sslPolicyErrors)
-    {
-        if (sslPolicyErrors == SslPolicyErrors.None)
-            return true;
-
-        Debug.Log(sslPolicyErrors);
-
-        // Do not allow this client to communicate with unauthenticated servers.
-        return true;
-    }
-    public async Task StartConnection()
-    {
-        if (tcpClient != null && tcpClient.Connected)
-        {
-            stream.Close();
-            tcpClient.Close();
-
-            tcpClient = null;
-            stream = null;
-        }
-
-        try
-        {
-            tcpClient = new TcpClient();
-            await tcpClient.ConnectAsync("192.168.56.101", 7000);
-            stream = new SslStream(tcpClient.GetStream(), false, new RemoteCertificateValidationCallback(ValidateServerCertificate), null);
-            stream.AuthenticateAsClient("dogfight.com");
-
-            onConnect.Invoke();
-            await RecvPacket();
-
-            Debug.Log("연결 종료");
-
-            stream.Close();
-            tcpClient.Close();
-        }
-        catch (SocketException)
-        {
-            Debug.Log("연결 실패");
-            onDisconnect.Invoke();
-        }
-        catch (AuthenticationException e)
-        {
-            Debug.Log("서버와 SSL 연결에 실패했습니다.");
-            Debug.LogErrorFormat("Error authenticating: {0}", e.Message);
-            if (e.InnerException != null)
-            {
-                Debug.LogErrorFormat("Inner exception: {0}", e.InnerException.Message);
-            }
-            onDisconnect.Invoke();
-        }
-    }
-
-    public void StopConnection()
-    {
-        if (tcpClient.Connected)
-        {
-            stream.Close();
-            tcpClient.Close();
-        }
-        onDisconnect.Invoke();
-    }
-
-    public void SendPacket(TcpPacket packet, TaskCompletionSource<TcpPacket> tsc = null, float duration = 0)
-    {
-        if (IsConnected)
-        {
-            var json = JsonUtility.ToJson(packet);
-            byte[] buff = Encoding.UTF8.GetBytes(json);
-            if (tsc != null)
-            {
-                NetworkRequest request = new NetworkRequest(packet, tsc, duration);
-                requestDict.Add(packet.Index, request);
-            }
-            stream?.WriteAsync(buff, 0, buff.Length);
-        }
-        else
-        {
-            Debug.Log("서버와 연결 할 수 없습니다.");
-            onDisconnect.Invoke();
-        }
-    }
-
-    public async Task RecvPacket()
-    {
-        int nbytes;
-        byte[] outbuf = new byte[1024];
-        MemoryStream mem = new MemoryStream();
-        List<Byte> ans = new();
-
-        while (true)
-        {
-            nbytes = await stream.ReadAsync(outbuf, 0, outbuf.Length);
-
-            if (nbytes <= 0)
-            {
-                onDisconnect.Invoke();
-                break;
+                requestDict[packet.AnsTo].OnAnswerArrive(packet);
             }
 
-            ans = ans.Concat(outbuf).ToList();
-            if (nbytes < outbuf.Length)
-            {
-                var str = Encoding.UTF8.GetString(ans.ToArray());
-                var packet = JsonUtility.FromJson<TcpPacket>(Encoding.UTF8.GetString(ans.ToArray()));
-
-                Debug.Log(str);
-                switch ((TcpPacketType)packet.Order)
-                {
-                    case TcpPacketType.Answer:
-                        if (requestDict.ContainsKey(packet.Index))
-                        {
-                            requestDict[packet.Index].OnAnswerArrive(packet);
-                        }
-                        break;
-                }
-                onPacketArrive.Invoke(packet);
-            }
-
-            Array.Clear(outbuf, 0, outbuf.Length);
-            ans.Clear();
+            return;
         }
 
-        mem.Close();
+        onPacketArrive.Invoke(id, packet);
+    }
+
+    private void OnDestroy()
+    {
+        wssv?.Stop();
+    }
+
+    public static Type GetType(string typeName)
+    {
+        var type = Type.GetType(typeName);
+        if (type != null) return type;
+        foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            type = a.GetType(typeName);
+            if (type != null)
+                return type;
+        }
+        return null;
     }
 }
