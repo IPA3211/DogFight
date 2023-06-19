@@ -4,56 +4,11 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.IO.Compression;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DogFightCommon
 {
-    public class ByteUtil
-    {
-        public static byte[] ObjectToByteArray(object obj)
-        {
-            BinaryFormatter bf = new BinaryFormatter();
-            using (var ms = new MemoryStream())
-            {
-                bf.Serialize(ms, obj);
-                return Compress(ms.ToArray());
-            }
-        }
-
-        public static object ByteArrayToObject(byte[] arrBytes)
-        {
-            byte[] decompressByte = Decompress(arrBytes);
-            using (var memStream = new MemoryStream())
-            {
-                var binForm = new BinaryFormatter();
-                memStream.Write(decompressByte, 0, decompressByte.Length);
-                memStream.Seek(0, SeekOrigin.Begin);
-                var obj = binForm.Deserialize(memStream);
-                return obj;
-            }
-        }
-
-        public static byte[] Compress(byte[] data)
-        {
-            MemoryStream output = new MemoryStream();
-            using (DeflateStream dstream = new DeflateStream(output, System.IO.Compression.CompressionLevel.Optimal))
-            {
-                dstream.Write(data, 0, data.Length);
-            }
-            return output.ToArray();
-        }
-
-        public static byte[] Decompress(byte[] data)
-        {
-            MemoryStream input = new MemoryStream(data);
-            MemoryStream output = new MemoryStream();
-            using (DeflateStream dstream = new DeflateStream(input, CompressionMode.Decompress))
-            {
-                dstream.CopyTo(output);
-            }
-            return output.ToArray();
-        }
-    }
-
     namespace WebSocketPacket
     {
         [Serializable]
@@ -173,6 +128,34 @@ namespace DogFightCommon
     }
     namespace UDPpacket
     {
+        [Serializable]
+        public class UdpPacket
+        {
+            [SerializeField] long sendTime;
+            public UdpPacket()
+            {
+                sendTime = DateTime.Now.Ticks;
+            }
+
+            public long getPacketTime()
+            {
+                return sendTime;
+            }
+        }
+
+        [Serializable]
+        public class CutPacket : UdpPacket
+        {
+            [SerializeField] List<SerializableTransform> transforms;
+
+            public CutPacket(List<Transform> transforms)
+            {
+                this.transforms = transforms.Select(e => new SerializableTransform(e)).ToList();
+            }
+
+            public List<SerializableTransform> GetTransforms => transforms;
+        }
+
         [Serializable]
         public class SerializableVector3
         {
