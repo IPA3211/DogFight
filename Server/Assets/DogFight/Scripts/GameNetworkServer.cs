@@ -37,7 +37,6 @@ public class GameNetworkServer : MonoBehaviour
     {
         IPEndPoint multicastEP = new IPEndPoint(IPAddress.Parse("229.1.1.229"), 5500);
         multi.DontFragment = true;
-        multi.Ttl = 1;
         multi.Send(buffer, buffer.Length, multicastEP);
     }
 
