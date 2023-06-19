@@ -12,6 +12,8 @@ public class GameNetworkManager : MonoBehaviour
     UdpClient multi = new UdpClient();
     IPEndPoint epRemote = new IPEndPoint(IPAddress.Any, 0);
 
+    long lastPacket = long.MinValue;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -35,13 +37,17 @@ public class GameNetworkManager : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         byte[] bytes = multi.Receive(ref epRemote);
 
-        SerializableTransform t = (SerializableTransform)ByteUtil.ByteArrayToObject(bytes);
+        CutPacket t = (CutPacket)ByteUtil.ByteArrayToObject(bytes);
         
-        t.OverWriteTransform(transform);
-        Debug.Log(transform.position);
+        if(lastPacket < t.getPacketTime())
+        {
+            lastPacket = t.getPacketTime();
+            t.GetTransforms[0].OverWriteTransform(transform);
+            Debug.Log(transform.position);
+        }
     }
 }

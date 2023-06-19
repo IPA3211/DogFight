@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Text;
 using DogFightCommon.UDPpacket;
 using DogFightCommon.Util;
+using System.Collections.Generic;
 
 public class GameNetworkServer : MonoBehaviour
 {
@@ -35,12 +36,17 @@ public class GameNetworkServer : MonoBehaviour
     void SendMulticast(byte[] buffer)
     {
         IPEndPoint multicastEP = new IPEndPoint(IPAddress.Parse("229.1.1.229"), 5500);
+        multi.DontFragment = true;
+        multi.Ttl = 1;
         multi.Send(buffer, buffer.Length, multicastEP);
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        SerializableTransform transform = new SerializableTransform(gameObject.transform);
-        SendMulticast(ByteUtil.ObjectToByteArray(transform));
+        List<Transform> transforms = new List<Transform>();
+        transforms.Add(gameObject.transform);
+
+        CutPacket packet = new CutPacket(transforms);
+        SendMulticast(ByteUtil.ObjectToByteArray(packet));
     }
 }
