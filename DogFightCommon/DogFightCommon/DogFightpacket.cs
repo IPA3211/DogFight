@@ -240,7 +240,7 @@ namespace DogFightCommon
                 scale = new SerializableVector3(transform.localScale);
             }
 
-            public void SetTransform(Transform transform)
+            public void OverWriteTransform(Transform transform)
             {
                 transform.position = position.GetVector3();
                 transform.rotation = rotation.GetQuaternion();
