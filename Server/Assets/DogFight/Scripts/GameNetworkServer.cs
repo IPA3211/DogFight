@@ -6,6 +6,7 @@ using System.Text;
 using DogFightCommon.UDPpacket;
 using DogFightCommon.Util;
 using System.Collections.Generic;
+using System.Linq;
 
 public class GameNetworkServer : MonoBehaviour
 {
@@ -43,7 +44,11 @@ public class GameNetworkServer : MonoBehaviour
     void FixedUpdate()
     {
         List<Transform> transforms = new List<Transform>();
-        transforms.Add(gameObject.transform);
+
+        for(int i = 0; i < transform.childCount; i++)
+        {
+            transforms.Add(transform.GetChild(i).transform);
+        }
 
         CutPacket packet = new CutPacket(transforms);
         SendMulticast(ByteUtil.ObjectToByteArray(packet));
