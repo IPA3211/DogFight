@@ -762,6 +762,10 @@ PrefabInstance:
       value: 1500
       objectReference: {fileID: 0}
     - target: {fileID: 2504992095079416042, guid: b36eef32822e1b140a22b71189445e86, type: 3}
+      propertyPath: info.isXfliped
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2504992095079416042, guid: b36eef32822e1b140a22b71189445e86, type: 3}
       propertyPath: info.pitchPower
       value: 50
       objectReference: {fileID: 0}
