@@ -58,8 +58,6 @@ public class Fighter : MonoBehaviour
         Gizmos.DrawLine(transform.position, transform.position + thrust);
         Gizmos.color = Color.white;
         Gizmos.DrawLine(transform.position, transform.position + thrust + drag + lift + new Vector3(0, -9.81f, 0) / 2);
-        Debug.Log(lift);
-        Debug.Log(lift + new Vector3(0, -9.81f, 0) / 2);
     }
 
     public void FixedUpdate()
