@@ -39,6 +39,6 @@ public class FighterController : MonoBehaviour
 
     public void SetFlipStatus()
     {
-        fighter.RollFighter(!fighter.IsYfliped);
+        fighter.RollFighter();
     }
 }
