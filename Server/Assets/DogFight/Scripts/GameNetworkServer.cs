@@ -16,6 +16,7 @@ public class GameNetworkServer : MonoBehaviour
     // Start is called before the first frame update
     async void Start()
     {
+        Application.targetFrameRate = 60;
         srv = new UdpClient(7777);
         while (true)
         {
@@ -41,7 +42,7 @@ public class GameNetworkServer : MonoBehaviour
         multi.Send(buffer, buffer.Length, multicastEP);
     }
 
-    void FixedUpdate()
+    void Update()
     {
         List<Transform> transforms = new List<Transform>();
 
