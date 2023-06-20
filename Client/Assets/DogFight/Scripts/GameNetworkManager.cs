@@ -13,41 +13,62 @@ public class GameNetworkManager : MonoBehaviour
     IPEndPoint epRemote = new IPEndPoint(IPAddress.Any, 0);
 
     long lastPacket = long.MinValue;
+    public int packetArriveCount = 0;
+    public int frameCount = 0;
+
+    Vector3 lastPos;
 
     // Start is called before the first frame update
     void Start()
     {
-
+        Application.targetFrameRate = 60;
         UdpClient cli = new UdpClient();
 
         string msg = "æ»≥Á«œººø‰";
         byte[] datagram = Encoding.UTF8.GetBytes(msg);
 
         cli.Send(datagram, datagram.Length, "127.0.0.1", 7777);
-
-        IPEndPoint localEp = new IPEndPoint(IPAddress.Any, 5500);
-        multi.Client.Bind(localEp);
-
-        IPAddress multicastIP = IPAddress.Parse("229.1.1.229");
-        multi.JoinMulticastGroup(multicastIP);
-
+        StartMulticastRecevier();
 
         // (4) UdpClient ∞¥√º ¥›±‚
         cli.Close();
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
+    async void StartMulticastRecevier()
     {
-        byte[] bytes = multi.Receive(ref epRemote);
+        IPEndPoint localEp = new IPEndPoint(IPAddress.Any, 5500);
 
-        CutPacket t = (CutPacket)ByteUtil.ByteArrayToObject(bytes);
-        
-        if(lastPacket < t.getPacketTime())
+        IPAddress multicastIP = IPAddress.Parse("229.1.1.229");
+
+        multi.Client.Bind(localEp);
+
+        multi.JoinMulticastGroup(multicastIP);
+
+        while (true)
+        {
+            var result = await multi.ReceiveAsync();
+            OnMulticastReceive(result);
+        }
+    }
+
+    void OnMulticastReceive(UdpReceiveResult res)
+    {
+        CutPacket t = (CutPacket)ByteUtil.ByteArrayToObject(res.Buffer);
+
+        if (lastPacket < t.getPacketTime())
         {
             lastPacket = t.getPacketTime();
             t.GetTransforms[0].OverWriteTransform(transform);
-            Debug.Log(transform.position);
         }
+        packetArriveCount++;
+    }
+
+    private void Update()
+    {
+        if (lastPos == transform.position)
+        {
+        }
+
+        lastPos = transform.position;
     }
 }
