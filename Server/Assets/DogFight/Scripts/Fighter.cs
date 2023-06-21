@@ -70,7 +70,6 @@ public class Fighter : MonoBehaviour
     public void Flip()
     {
         fighter.transform.localRotation = Quaternion.Euler(isYfliped ? 180 : 0, isXfliped ? 180 : 0, 0);
-        Debug.Log(isYfliped);
     }
 
     public void Pitch(int pitchDriection)
